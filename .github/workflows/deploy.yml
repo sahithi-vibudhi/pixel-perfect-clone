@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
@@ -36,10 +36,17 @@ jobs:
         env:
           BASE_PATH: /pixel-perfect-clone/
 
-      - name: Add 404 fallback and disable Jekyll
+      - name: Locate static output
+        id: out
         run: |
-          cp dist/client/index.html dist/client/404.html
-          touch dist/client/.nojekyll
+          DIR=$(dirname "$(find dist .output -name index.html -not -path '*/node_modules/*' 2>/dev/null | head -n 1)")
+          if [ -z "$DIR" ] || [ ! -f "$DIR/index.html" ]; then
+            echo "No prerendered index.html found"; ls -R dist .output 2>/dev/null | head -50; exit 1
+          fi
+          echo "Static output: $DIR"; ls -la "$DIR"
+          cp "$DIR/index.html" "$DIR/404.html"
+          touch "$DIR/.nojekyll"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -47,7 +54,7 @@ jobs:
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/client
+          path: ${{ steps.out.outputs.dir }}
 
   deploy:
     environment:
