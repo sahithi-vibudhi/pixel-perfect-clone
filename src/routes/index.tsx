@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const RESUME_PATH = "/Vibudhi_Sahithi_Resume.pdf";
+const RESUME_PATH = `${import.meta.env.BASE_URL}Vibudhi_Sahithi_Resume.pdf`;
 const EMAIL = "vibudhisahithi16@gmail.com";
 const LINKEDIN = "https://linkedin.com/in/vibudhi-sahithi";
 const GITHUB = "https://github.com/sahithi-vibudhi";

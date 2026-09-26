@@ -6,6 +6,6 @@
  * "Remove Photo" restores this default image.
  */
 
-export const profilePhoto: string | null = "/profile.jpg.jpeg";
+export const profilePhoto: string | null = `${import.meta.env.BASE_URL}profile.jpg.jpeg`;
 
 export const profilePhotoAlt = "Vibudhi Sahithi";
