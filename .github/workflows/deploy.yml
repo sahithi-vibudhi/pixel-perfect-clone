@@ -31,8 +31,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build portfolio
-        run: npm run build -- --base=/pixel-perfect-clone/
+      - name: Build portfolio (static prerender)
+        run: npm run build
+        env:
+          BASE_PATH: /pixel-perfect-clone/
+
+      - name: Add 404 fallback and disable Jekyll
+        run: |
+          cp dist/client/index.html dist/client/404.html
+          touch dist/client/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -40,7 +47,7 @@ jobs:
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./dist/client
 
   deploy:
     environment:
