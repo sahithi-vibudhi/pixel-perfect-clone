@@ -494,6 +494,7 @@ function Index() {
           <p className="mt-6 text-sm text-muted-foreground">
             Phone: <span className="text-foreground">{PHONE}</span>
           </p>
+          <ContactForm />
         </section>
       </main>
 
@@ -504,5 +505,125 @@ function Index() {
         </div>
       </footer>
     </div>
+  );
+}
+
+const FORM_ENDPOINT = `https://formsubmit.co/ajax/${EMAIL}`;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+type FormFields = { name: string; email: string; subject: string; message: string };
+const EMPTY: FormFields = { name: "", email: "", subject: "", message: "" };
+
+function ContactForm() {
+  const [values, setValues] = useState<FormFields>(EMPTY);
+  const [errors, setErrors] = useState<Partial<FormFields>>({});
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+
+  const validate = (v: FormFields) => {
+    const e: Partial<FormFields> = {};
+    if (!v.name.trim()) e.name = "Please enter your name.";
+    else if (v.name.length > 100) e.name = "Name must be under 100 characters.";
+    if (!v.email.trim()) e.email = "Please enter your email.";
+    else if (!EMAIL_RE.test(v.email.trim())) e.email = "Please enter a valid email address.";
+    if (!v.subject.trim()) e.subject = "Please enter a subject.";
+    else if (v.subject.length > 150) e.subject = "Subject must be under 150 characters.";
+    if (!v.message.trim()) e.message = "Please enter a message.";
+    else if (v.message.length > 2000) e.message = "Message must be under 2000 characters.";
+    return e;
+  };
+
+  const update = (k: keyof FormFields) => (
+    ev: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setValues((p) => ({ ...p, [k]: ev.target.value }));
+    if (errors[k]) setErrors((p) => ({ ...p, [k]: undefined }));
+    if (status !== "idle" && status !== "sending") setStatus("idle");
+  };
+
+  const onSubmit = async (ev: React.FormEvent) => {
+    ev.preventDefault();
+    const e = validate(values);
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    setStatus("sending");
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name: values.name.trim(),
+          email: values.email.trim(),
+          _subject: `Portfolio: ${values.subject.trim()}`,
+          subject: values.subject.trim(),
+          message: values.message.trim(),
+          _template: "table",
+          _captcha: "false",
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || String(data.success) === "false") throw new Error("failed");
+      setStatus("success");
+      setValues(EMPTY);
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  const field =
+    "mt-2 w-full rounded-lg border border-input bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus:border-primary/60 focus:ring-2 focus:ring-ring/40";
+  const label = "text-xs font-semibold uppercase tracking-[0.18em] text-primary";
+  const err = (k: keyof FormFields) =>
+    errors[k] ? (
+      <p id={`${k}-error`} className="mt-1.5 text-xs text-destructive">
+        {errors[k]}
+      </p>
+    ) : null;
+
+  return (
+    <form onSubmit={onSubmit} noValidate className="surface-panel mt-8 p-6 sm:p-8">
+      <h3 className="text-lg font-semibold text-foreground">Send a Message</h3>
+      <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        <div>
+          <label htmlFor="cf-name" className={label}>Name</label>
+          <input id="cf-name" name="name" type="text" required maxLength={100} placeholder="Your name"
+            value={values.name} onChange={update("name")} aria-invalid={!!errors.name} className={field} />
+          {err("name")}
+        </div>
+        <div>
+          <label htmlFor="cf-email" className={label}>Email</label>
+          <input id="cf-email" name="email" type="email" required maxLength={255} placeholder="you@example.com"
+            value={values.email} onChange={update("email")} aria-invalid={!!errors.email} className={field} />
+          {err("email")}
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="cf-subject" className={label}>Subject</label>
+          <input id="cf-subject" name="subject" type="text" required maxLength={150} placeholder="What is this about?"
+            value={values.subject} onChange={update("subject")} aria-invalid={!!errors.subject} className={field} />
+          {err("subject")}
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="cf-message" className={label}>Message</label>
+          <textarea id="cf-message" name="message" required maxLength={2000} rows={5} placeholder="Write your message..."
+            value={values.message} onChange={update("message")} aria-invalid={!!errors.message} className={`${field} resize-y`} />
+          {err("message")}
+        </div>
+      </div>
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+        <button type="submit" disabled={status === "sending"}
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60">
+          {status === "sending" ? "Sending..." : "Send Message"}
+        </button>
+        <div aria-live="polite">
+          {status === "success" && (
+            <p className="text-sm text-primary">Thank you! Your message has been sent successfully.</p>
+          )}
+          {status === "error" && (
+            <p className="text-sm text-destructive">
+              Sorry, your message could not be sent. Please try again or email {EMAIL} directly.
+            </p>
+          )}
+        </div>
+      </div>
+    </form>
   );
 }
