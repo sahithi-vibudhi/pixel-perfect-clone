@@ -1,16 +1,11 @@
 /**
- * HOW TO ADD YOUR OWN PROFILE PHOTO
+ * The permanent profile photo lives in the `public/` folder
+ * (`public/profile.jpg.jpeg`) and is served at `/profile.jpg.jpeg`.
  *
- * 1. Put your photo file in `src/assets/` (for example `src/assets/profile.jpg`).
- * 2. Uncomment the import line below and point it at your file.
- * 3. Change `profilePhoto` to use that import.
- *
- * Nothing else needs to change — the layout, size and cropping stay the same.
+ * Visitors can still swap in a temporary photo with "Change Photo";
+ * "Remove Photo" restores this default image.
  */
 
-// import profileImage from "@/assets/profile.jpg";
-
-export const profilePhoto: string | null = null;
-// export const profilePhoto: string | null = profileImage;
+export const profilePhoto: string | null = "/profile.jpg.jpeg";
 
 export const profilePhotoAlt = "Vibudhi Sahithi";
