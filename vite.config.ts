@@ -7,8 +7,8 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // GitHub Pages build: set BASE_PATH=/pixel-perfect-clone/ to prerender a static site.
-const basePath = process.env.BASE_PATH || "/";
-const isStatic = !!process.env.BASE_PATH;
+const basePath = process.env['BASE_PATH'] || "/";
+const isStatic = !!process.env['BASE_PATH'];
 
 export default defineConfig({
   vite: { base: basePath },
