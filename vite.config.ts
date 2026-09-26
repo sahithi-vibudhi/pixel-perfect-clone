@@ -12,7 +12,7 @@ export default defineConfig({
       ? {
           prerender: {
             enabled: true,
-            crawlLinks: true,
+            crawlLinks: false,
             autoStaticPathsDiscovery: true,
             failOnError: true,
           },
