@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { profilePhoto, profilePhotoAlt } from "@/lib/profile-photo";
 
 export const Route = createFileRoute("/")({
@@ -122,20 +123,85 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
   );
 }
 
+const PHOTO_KEY = "portfolio-profile-photo";
+
+function resizeImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const max = 800;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.88));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function ProfilePhoto() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [photo, setPhoto] = useState<string | null>(profilePhoto);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PHOTO_KEY);
+      if (saved) setPhoto(saved);
+    } catch {}
+  }, []);
+
+  const openPicker = () => inputRef.current?.click();
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !/^image\/(jpe?g|png)$/.test(file.type)) return;
+    const data = await resizeImage(file);
+    setPhoto(data);
+    try {
+      localStorage.setItem(PHOTO_KEY, data);
+    } catch {}
+  };
+
+  const removePhoto = () => {
+    setPhoto(profilePhoto);
+    try {
+      localStorage.removeItem(PHOTO_KEY);
+    } catch {}
+  };
+
   return (
     <div className="relative mx-auto w-[15rem] sm:w-[17rem] lg:w-[20rem]">
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png"
+        className="hidden"
+        onChange={onFile}
+      />
       <div className="absolute -inset-3 rounded-[2rem] bg-primary/10 blur-2xl" aria-hidden="true" />
       <div className="surface-panel relative aspect-square overflow-hidden rounded-[2rem] ring-1 ring-primary/40">
-        {profilePhoto ? (
+        {photo ? (
           <img
-            src={profilePhoto}
+            src={photo}
             alt={profilePhotoAlt}
             className="h-full w-full object-cover"
             loading="eager"
           />
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-secondary/40 px-6 text-center">
+          <button
+            type="button"
+            onClick={openPicker}
+            className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 bg-secondary/40 px-6 text-center transition-colors hover:bg-secondary/60"
+          >
             <svg
               viewBox="0 0 24 24"
               className="h-16 w-16 text-primary/70"
@@ -147,13 +213,26 @@ function ProfilePhoto() {
               <circle cx="12" cy="8.5" r="3.6" />
               <path d="M4.5 20c1.4-3.8 4.2-5.6 7.5-5.6s6.1 1.8 7.5 5.6" strokeLinecap="round" />
             </svg>
-            <p className="text-sm font-medium text-foreground">Add Photo</p>
-            <p className="text-xs leading-relaxed text-muted-foreground">
+            <span className="rounded-full border border-primary/50 px-4 py-1.5 text-sm font-medium text-foreground">
+              Add Photo
+            </span>
+            <span className="text-xs leading-relaxed text-muted-foreground">
               Profile photo placeholder — replace it with your own image anytime.
-            </p>
-          </div>
+            </span>
+          </button>
         )}
       </div>
+      {photo && (
+        <div className="relative mt-4 flex items-center justify-center gap-3 text-xs">
+          <button type="button" onClick={openPicker} className="text-primary hover:underline">
+            Change Photo
+          </button>
+          <span className="text-muted-foreground">|</span>
+          <button type="button" onClick={removePhoto} className="text-muted-foreground hover:text-foreground hover:underline">
+            Remove Photo
+          </button>
+        </div>
+      )}
     </div>
   );
 }
