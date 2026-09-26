@@ -26,27 +26,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
+          cache: npm
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build portfolio (static prerender)
-        run: npm run build
+      - name: Build portfolio
         env:
-          BASE_PATH: /pixel-perfect-clone/
+          CI: "true"
+        run: npm run build -- --base=/pixel-perfect-clone/
 
-      - name: Locate static output
-        id: out
+      - name: Verify static website
         run: |
-          DIR=$(dirname "$(find dist .output -name index.html -not -path '*/node_modules/*' 2>/dev/null | head -n 1)")
-          if [ -z "$DIR" ] || [ ! -f "$DIR/index.html" ]; then
-            echo "No prerendered index.html found"; ls -R dist .output 2>/dev/null | head -50; exit 1
-          fi
-          echo "Static output: $DIR"; ls -la "$DIR"
-          cp "$DIR/index.html" "$DIR/404.html"
-          touch "$DIR/.nojekyll"
-          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+          test -f ./dist/client/index.html
+          cp ./dist/client/index.html ./dist/client/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -54,7 +48,7 @@ jobs:
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ steps.out.outputs.dir }}
+          path: ./dist/client
 
   deploy:
     environment:
