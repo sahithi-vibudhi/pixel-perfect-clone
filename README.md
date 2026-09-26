@@ -1,24 +1,64 @@
-# Pixel Perfect Clone
+# Personal Portfolio – FSD Assignment 1
 
-Implement exactly the screenshot and nothing else
+## About
 
-This project was built with [Lovable](https://lovable.dev).
+This project is my personal portfolio website developed as part of my Full Stack Development Assignment.
 
-## Build with Lovable
+The portfolio presents my academic background, technical skills, internship experience, projects, and contact information in a responsive and modern web interface.
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/20ce72c0-f3a7-40bf-9e54-ccfc147cef1a).
+## Objective
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+The objective of this portfolio is to create a professional online profile that showcases my technical knowledge, development projects, and experience for academic and placement purposes.
 
-## Development
+## Technologies Used
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+- React
+- TypeScript
+- Vite
+- HTML
+- CSS
+- JavaScript
+- Git
+- GitHub
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+## Portfolio Sections
+
+- About Me
+- Technical Skills
+- Projects
+- Experience
+- Education
+- Contact
+- Resume
+
+## Projects
+
+### TrinetraX – Smart Crowd Management System
+
+A web-based smart crowd management system designed for pilgrimage sites, supporting features such as darshan booking, queue management, crowd monitoring, and administrative management.
+
+### Disease Risk Prediction
+
+A machine learning project that predicts disease risk using machine learning techniques.
+
+### Emotion-Based Music Recommendation System
+
+A web application that recommends music based on detected user emotions.
+
+## Experience
+
+The portfolio includes my internship and practical development experience.
+
+## Resume
+
+My resume is available through the portfolio's Resume/Download Resume option.
+
+## Live Portfolio
+
+The live portfolio URL will be added here after GitHub Pages deployment.
+
+## Author
+
+**Vipudi Sahithi**
+
+B.Tech – Computer Science Engineering
